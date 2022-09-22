@@ -31,23 +31,30 @@ use yii\db\ActiveRecord;
  */
 class History extends ActiveRecord
 {
-    use ObjectNameTrait;
+    public const EVENT_CREATED_TASK = 'created_task';
+    public const EVENT_UPDATED_TASK = 'updated_task';
+    public const EVENT_COMPLETED_TASK = 'completed_task';
 
-    const EVENT_CREATED_TASK = 'created_task';
-    const EVENT_UPDATED_TASK = 'updated_task';
-    const EVENT_COMPLETED_TASK = 'completed_task';
+    public const EVENT_INCOMING_SMS = 'incoming_sms';
+    public const EVENT_OUTGOING_SMS = 'outgoing_sms';
 
-    const EVENT_INCOMING_SMS = 'incoming_sms';
-    const EVENT_OUTGOING_SMS = 'outgoing_sms';
+    public const EVENT_INCOMING_CALL = 'incoming_call';
+    public const EVENT_OUTGOING_CALL = 'outgoing_call';
 
-    const EVENT_INCOMING_CALL = 'incoming_call';
-    const EVENT_OUTGOING_CALL = 'outgoing_call';
+    public const EVENT_INCOMING_FAX = 'incoming_fax';
+    public const EVENT_OUTGOING_FAX = 'outgoing_fax';
 
-    const EVENT_INCOMING_FAX = 'incoming_fax';
-    const EVENT_OUTGOING_FAX = 'outgoing_fax';
+    public const EVENT_CUSTOMER_CHANGE_TYPE = 'customer_change_type';
+    public const EVENT_CUSTOMER_CHANGE_QUALITY = 'customer_change_quality';
 
-    const EVENT_CUSTOMER_CHANGE_TYPE = 'customer_change_type';
-    const EVENT_CUSTOMER_CHANGE_QUALITY = 'customer_change_quality';
+    public static $classes = [
+        Customer::class,
+        Sms::class,
+        Task::class,
+        Call::class,
+        Fax::class,
+        User::class,
+    ];
 
     /**
      * @inheritdoc
@@ -155,8 +162,8 @@ class History extends ActiveRecord
      */
     public function getDetailChangedAttribute($attribute)
     {
-        $detail = json_decode($this->detail);
-        return isset($detail->changedAttributes->{$attribute}) ? $detail->changedAttributes->{$attribute} : null;
+        $detail = json_decode($this->detail, false);
+        return $detail->changedAttributes->{$attribute} ?? null;
     }
 
     /**
@@ -185,7 +192,51 @@ class History extends ActiveRecord
      */
     public function getDetailData($attribute)
     {
-        $detail = json_decode($this->detail);
+        $detail = json_decode($this->detail, false);
         return isset($detail->data->{$attribute}) ? $detail->data->{$attribute} : null;
+    }
+
+    /**
+     * @param $name
+     * @param bool $throwException
+     * @return mixed
+     */
+    public function getRelation($name, $throwException = true)
+    {
+        $getter = 'get' . $name;
+        $class = self::getClassNameByRelation($name);
+
+        if (!method_exists($this, $getter) && $class) {
+            return $this->hasOne($class, ['id' => 'object_id']);
+        }
+
+        return parent::getRelation($name, $throwException);
+    }
+
+    /**
+     * @param $className
+     * @return mixed
+     */
+    public static function getObjectByTableClassName($className)
+    {
+        if (method_exists($className, 'tableName')) {
+            return str_replace(['{', '}', '%'], '', $className::tableName());
+        }
+
+        return $className;
+    }
+
+    /**
+     * @param $relation
+     * @return string|null
+     */
+    public static function getClassNameByRelation($relation)
+    {
+        foreach (self::$classes as $class) {
+            if (self::getObjectByTableClassName($class) == $relation) {
+                return $class;
+            }
+        }
+        return null;
     }
 }

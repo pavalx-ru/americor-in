@@ -35,13 +35,13 @@ use yii\db\ActiveRecord;
  */
 class Task extends ActiveRecord
 {
-    const STATUS_NEW = 0;
-    const STATUS_DONE = 1;
-    const STATUS_CANCEL = 3;
+    public const STATUS_NEW = 0;
+    public const STATUS_DONE = 1;
+    public const STATUS_CANCEL = 3;
 
-    const STATE_INBOX = 'inbox';
-    const STATE_DONE = 'done';
-    const STATE_FUTURE = 'future';
+    public const STATE_INBOX = 'inbox';
+    public const STATE_DONE = 'done';
+    public const STATE_FUTURE = 'future';
 
     /**
      * @inheritdoc
@@ -154,7 +154,7 @@ class Task extends ActiveRecord
     /**
      * @return bool
      */
-    public function getIsOverdue()
+    public function getIsOverdue(): bool
     {
         return $this->status !== self::STATUS_DONE && strtotime($this->due_date) < time();
     }
@@ -162,8 +162,8 @@ class Task extends ActiveRecord
     /**
      * @return bool
      */
-    public function getIsDone()
+    public function getIsDone(): bool
     {
-        return $this->status == self::STATUS_DONE;
+        return $this->status === self::STATUS_DONE;
     }
 }

@@ -37,7 +37,7 @@ class HistorySearch extends History
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search(array $params): ActiveDataProvider
     {
         $query = History::find();
 

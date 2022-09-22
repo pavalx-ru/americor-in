@@ -7,9 +7,10 @@ use Yii;
 
 class Export extends ExportMenu
 {
+    public const BATCH_SIZE = 2000;
     public $exportType = self::FORMAT_CSV;
 
-    public function init()
+    public function init(): void
     {
         if (empty($this->options['id'])) {
             $this->options['id'] = $this->getId();
