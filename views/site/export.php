@@ -1,21 +1,17 @@
 <?php
 
 /**
- * @var $this yii\web\View
- * @var $model \app\models\History
- * @var $dataProvider yii\data\ActiveDataProvider
- * @var $exportType string
+ * @var yii\web\View $this
+ * @var History $model
+ * @var yii\data\ActiveDataProvider $dataProvider
+ * @var string $exportType
+ * @var string $filename
  */
 
 use app\models\History;
 use app\widgets\Export\Export;
-use app\widgets\HistoryList\helpers\HistoryListHelper;
+use app\widgets\HistoryList\Service\HistoryEventFactory;
 
-$filename = 'history';
-$filename .= '-' . time();
-
-ini_set('max_execution_time', 0);
-ini_set('memory_limit', '2048M');
 ?>
 
 <?= Export::widget([
@@ -28,30 +24,30 @@ ini_set('memory_limit', '2048M');
         ],
         [
             'label' => Yii::t('app', 'User'),
-            'value' => function (History $model) {
+            'value' => static function (History $model) {
                 return isset($model->user) ? $model->user->username : Yii::t('app', 'System');
             }
         ],
         [
             'label' => Yii::t('app', 'Type'),
-            'value' => function (History $model) {
+            'value' => static function (History $model) {
                 return $model->object;
             }
         ],
         [
             'label' => Yii::t('app', 'Event'),
-            'value' => function (History $model) {
+            'value' => static function (History $model) {
                 return $model->eventText;
             }
         ],
         [
             'label' => Yii::t('app', 'Message'),
-            'value' => function (History $model) {
-                return strip_tags(HistoryListHelper::getBodyByModel($model));
+            'value' => static function (History $model) {
+                return strip_tags(HistoryEventFactory::get($model)->getBodyText());
             }
         ]
     ],
     'exportType' => $exportType,
-    'batchSize' => 2000,
+    'batchSize' => Export::BATCH_SIZE,
     'filename' => $filename
 ]);

@@ -1,6 +1,7 @@
 <?php
 
 use app\models\search\HistorySearch;
+use app\widgets\HistoryList\Presenter;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use yii\widgets\ListView;

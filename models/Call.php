@@ -33,13 +33,15 @@ use yii\db\ActiveRecord;
  */
 class Call extends ActiveRecord
 {
-    const STATUS_NO_ANSWERED = 0;
-    const STATUS_ANSWERED = 1;
+    public const STATUS_NO_ANSWERED = 0;
+    public const STATUS_ANSWERED = 1;
 
-    const DIRECTION_INCOMING = 0;
-    const DIRECTION_OUTGOING = 1;
+    public const DIRECTION_INCOMING = 0;
+    public const DIRECTION_OUTGOING = 1;
 
-    public $duration = 720;
+    private const HOUR = 3600;
+
+    private $duration = 720;
 
     /**
      * @inheritdoc
@@ -175,7 +177,7 @@ class Call extends ActiveRecord
     public function getDurationText()
     {
         if (!is_null($this->duration)) {
-            return $this->duration >= 3600 ? gmdate("H:i:s", $this->duration) : gmdate("i:s", $this->duration);
+            return $this->duration >= self::HOUR ? gmdate("H:i:s", $this->duration) : gmdate("i:s", $this->duration);
         }
         return '00:00';
     }
